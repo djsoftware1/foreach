@@ -83,6 +83,20 @@ static std::vector<std::string> split_delim(std::string_view line, char delim) {
     return out;
 }
 
+static bool has_placeholder(const std::vector<std::string>& args) {
+    for (const auto& s : args) {
+        for (size_t i = 0; i < s.size(); ++i) {
+            if (s[i] == '$' && i + 1 < s.size()) {
+                char c = s[i + 1];
+                if (c == '*' || c == '#' || std::isdigit((unsigned char)c)) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
 static std::string expand_template(
     std::string_view tmpl,
     const std::vector<std::string>& fields,
@@ -225,11 +239,19 @@ int main(int argc, char* argv[]) {
 
         std::vector<std::string> cmd;
         for (const auto& a : cmd_template)
+        {
             cmd.push_back(expand_template(a, fields, raw_line, line_no));
+        }
 
-        //if (!has_placeholder) {
-        cmd.push_back(raw_line);
-        //}
+        // 'implicit mode' ... if user specifies expansions then don't append the full params by default or we get an extra one
+        // for example 'git clone $1 b_$1' becomes in advertently:
+        // 'git clone $1 b_$1' $*
+        // as in the normal case like 'for-each git clone' it correctly appends $*
+        // but for cases like git clone $1 b_$1' that auto-appending will mess us around as the extra parameter(s) to git would cause fail
+        bool uses_placeholders = has_placeholder(cmd_template);
+        if (!uses_placeholders) {
+            cmd.push_back(raw_line);
+        }
             
 #ifdef _WIN32
         std::wstring cmdline;
