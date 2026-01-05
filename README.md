@@ -35,8 +35,15 @@ Note: Use single quotes around placeholders (to avoid shell expansion before bei
 ## Example use
 
 ```sh
+# Show help and exit
+for-each -h
+for-each --help
+
+# Show version number and exit
+for-each --version
+
 # Do a command for all folders in current directory
-ls -d * | for-each echo
+ls -d */ | for-each echo
 
 cat repo_list.txt | for-each echo
 
@@ -127,6 +134,8 @@ ls *.mp4 | for-each ffmpeg -i '$1' -vf scale=1280:720 r
 - Optional tab-separated fields detected automatically
 - Works on **Linux, macOS, and Windows**
 - No runtime dependencies
+
+`for-each` is intentionally not a CSV (Comma-Separated Values) or text-processing language.
 
 ---
 

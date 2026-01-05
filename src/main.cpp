@@ -35,6 +35,8 @@
   #include <sys/wait.h>
 #endif
 
+#include "help.h"
+
 // ---------- utilities ----------
 
 static std::string trim(std::string_view s) {
@@ -172,19 +174,52 @@ int main(int argc, char* argv[]) {
 
     std::vector<std::string> cmd_template;
 
+    // PARSE COMMAND LINE ARGUMENTS
+    // "--" indicates end of argument parsing in case anyone ever wants to pass things like "-h" as actual arguments ... not impossible. -- allows that. dj2026-01-05
+    bool end_of_opts = false;
     for (int i = 1; i < argc; ++i) {
         std::string a = argv[i];
-        if (a == "-s" || a == "--space-delim") {
-            space_delim = true;
-        } else if (a == "--delim" && i + 1 < argc) {
-            delim = argv[++i][0];
-        } else {
-            cmd_template.emplace_back(a);
+    
+        if (!end_of_opts && a == "--") {
+            end_of_opts = true;
+            continue;
         }
-    }
+    
+        if (!end_of_opts) {
+            if (a == "-h" || a == "--help") {
+                print_help();
+                return 0;
+            }
+            if (a == "--version") {
+                print_version();
+                return 0;
+            }
+            // Space delimiter
+            if (a == "-s" || a == "--space-delim") {
+                space_delim = true;
+                continue;
+            }
+            // Custom delimiter
+            if (a == "--delim" && i + 1 < argc) {
+                delim = argv[++i][0];
+                continue;
+            }
+            /*
+            if (a == "--include-empty") {
+                include_empty = true;
+                continue;
+            }
+            */
+            // other flags...
+        }
+    
+        // Everything else is part of the command template
+        cmd_template.push_back(a);
+
+    }    
 
     if (cmd_template.empty()) {
-        std::cerr << "foreach: no command given\n";
+        std::cerr << "for-each: no command given\n";
         return 1;
     }
 
