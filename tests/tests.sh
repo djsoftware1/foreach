@@ -67,3 +67,6 @@ echo '=================================='
 printf "apple\tfruit\ncarrot\tvegetable\n" \
   | for-each echo '"$1 is a $2"'
 echo '=================================='
+
+# bulk operations or cowsay
+printf "C++\nPython\nRust\nfor-each\nLinux\nWindows\nMac\nUnix\ncowsay\nChatGPT" | for-each sh -c 'echo " I love $1 " | cowsay'
