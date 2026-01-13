@@ -55,6 +55,9 @@ cat urls.txt | for-each wget
 
 # Line numbers
 cat src/main.cpp | for-each echo '$#'
+
+# bulk operations or cowsay
+printf "C++\nPython\nRust\nfor-each\nLinux\nWindows\nMac\nUnix\ncowsay\nChatGPT" | for-each sh -c 'echo " I love $1 " | cowsay'
 ```
 
 ### Git & Repository Management
@@ -70,6 +73,9 @@ cat repos.txt | for-each git clone --recurse-submodules
 ### File Processing & Renaming
 
 ```sh
+# Auto-generate filenames and create files or folders
+cat tasknames.txt | for-each touch 'tasks-$1.txt'
+
 # Convert all markdown to HTML
 ls *.md | for-each pandoc '$1' -o '$*.html'
 
